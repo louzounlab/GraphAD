@@ -41,6 +41,11 @@ class BetaCalculator:
 class LinearContext(BetaCalculator):
     def __init__(self, graphs: Graphs, feature_pairs, split=1):
         self._interval = int(graphs.number_of_graphs() / split)
+        self._all_features = graphs.features_matrix_by_index(for_all=True)
+        self._nodes_for_graph = graphs.nodes_count_list()
+        self._all_ftr_graph_index = []
+        for i in range(len(self._nodes_for_graph) + 1):
+            self._all_ftr_graph_index.append(np.sum(self._nodes_for_graph[0:i]))
         super(LinearContext, self).__init__(graphs, feature_pairs)
 
     def _linear_regression(self, x_np, y_np):
@@ -49,32 +54,26 @@ class LinearContext(BetaCalculator):
         :param y_np:
         :return: regression coefficient
         """
-        x = x_np.tolist()
-        y = y_np.tolist()
-        regression = linear_model.LinearRegression()
-        regression.fit(np.transpose(np.matrix(x)), np.transpose(np.matrix(y)))
-        return regression.coef_[0][0]  # , regression.intercept_[0])
+        return linear_model.LinearRegression().fit(np.transpose(x_np), np.transpose(y_np)).coef_[0][0]
 
     def _calc_beta(self, gid):
         beta_vec = []
         # get features matrix for interval
         g_index = self._graphs.name_to_index(gid)
+
         if g_index < self._interval:
-            context_matrix = self._graphs.features_matrix_by_index(0, self._interval)
+            context_matrix = self._all_features[0: int(self._all_ftr_graph_index[self._interval]), :]
         else:
-            context_matrix = self._graphs.features_matrix_by_index(g_index - self._interval, g_index)
+            context_matrix = self._all_features[int(self._all_ftr_graph_index[g_index - self._interval]):
+                                                int(self._all_ftr_graph_index[g_index]), :]
         # get features matrix only for current graph
         g_matrix = self._graphs.features_matrix(gid)
 
         for i, j in self._ftr_pairs:
-            coef_ij = self._linear_regression(context_matrix[:, i].T, context_matrix[:, j].T)
-            # c_coef_ij = self._linear_regression(context_matrix[:, i].T, context_matrix[:, j].T)
-            # g_coef_ij = self._linear_regression(g_matrix[:, i].T, g_matrix[:, j].T)
-            # calculate b_ijk which is defined as the mean on the b for all the vertices of a graph
-            # b_ijk_vec is a vector of b_ijk for all the vertices in the graph
-            # b_ijk = np.abs(c_coef_ij - g_coef_ij)
-            b_ijk = np.mean(g_matrix[:, j] - coef_ij - g_matrix[:, i])
-            beta_vec.append(b_ijk)
+            beta_vec.append(np.mean(g_matrix[:, j] -
+                            linear_model.LinearRegression().fit(np.transpose(context_matrix[:, i].T),
+                                                                np.transpose(context_matrix[:, j].T)).coef_[0][0] *
+                            g_matrix[:, i]))
         return np.asarray(beta_vec)
 
 

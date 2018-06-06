@@ -1,7 +1,8 @@
 import scipy.stats
 from graphs import Graphs
 from loggers import BaseLogger, PrintLogger
-
+import collections
+import numpy as np
 
 class FeaturesPicker:
     def __init__(self, graphs: Graphs, logger :BaseLogger = None, size=10, identical_bar=0.6):
@@ -30,16 +31,9 @@ class FeaturesPicker:
     def _fill_features_identicality(self):
         self._logger.debug("start features identicality")
         rows, cols = self._features_matrix.shape
-        # loop over all features
-        for col in range(cols):
-            val_dict = {}
-            # loop over specific feature + count appearances per value
-            for i in range(rows):
-                if self._features_matrix[i, col] not in val_dict:
-                    val_dict[self._features_matrix[i, col]] = 1
-                else:
-                    val_dict[self._features_matrix[i, col]] += 1
-            self._features_identicality.append(max(val_dict.values()) / rows)
+        for i in range(cols):
+            self._features_identicality.append(collections.Counter(
+                self._features_matrix[:, i].T.tolist()[0]).most_common(1)[0][1] / rows)
         self._logger.debug("end_features identicality")
 
     def _identicality_for(self, feature_index):
