@@ -4,6 +4,7 @@ from loggers import BaseLogger, PrintLogger
 import collections
 import numpy as np
 
+
 class FeaturesPicker:
     def __init__(self, graphs: Graphs, logger :BaseLogger = None, size=10, identical_bar=0.6):
         if logger:
