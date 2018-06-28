@@ -49,7 +49,7 @@ class KnnScore(GraphScore):
         from_graph = 0
         to_graph = interval - 1
         for graph_k in range(dim):
-            if graph_k >= interval + 5000:
+            if graph_k >= interval:
                 from_graph = graph_k - interval
                 to_graph = graph_k
             sorted_row = np.sort(np.asarray(self._dMat[graph_k, from_graph:to_graph]))
