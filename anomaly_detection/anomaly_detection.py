@@ -60,9 +60,9 @@ class AnomalyDetection:
             'database': 'EnronInc',
             # 'database': 'mc2_vast12',
             # 'database': 'twitter_security',
-            'files_path': "../../../../networks/databases/EnronInc/EnronInc_by_day",
-            # 'files_path': "../../../../networks/databases/mc2_vast12/basic_by_minute",
-            # 'files_path': "../../../../networks/databases/twitter_security/data_by_days",
+            'files_path': "../../../databases/EnronInc/EnronInc_by_day",
+            # 'files_path': "../../databases/mc2_vast12/basic_by_minute",
+            # 'files_path': "../../databases/twitter_security/data_by_days",
             'date_format': '%d-%b-%Y.txt',  # Enron
             # 'date_format': '%d:%m:%Y_%H:%M.txt',  # vast
             # 'date_format': '%d:%m.txt',  # Twitter
